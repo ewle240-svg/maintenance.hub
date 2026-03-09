@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voltsouth | Premium Electrical Engineering</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+        
+        :root { 
+            --accent: #fbbf24;
+            --dark: #0f172a;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            overflow-x: hidden;
+            background-color: #f8fafc;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Dark Mode Styling */
+        .dark-mode { background-color: #020617; color: #f8fafc; }
+        .dark-mode .bg-white { background-color: #0f172a; color: #f1f5f9; }
+        .dark-mode .text-slate-900 { color: #f8fafc; }
+        .dark-mode .text-slate-600 { color: #94a3b8; }
+        .dark-mode .bg-slate-50 { background-color: #020617; }
+        .dark-mode nav.glass { background-color: rgba(15, 23, 42, 0.85); border-color: #1e293b; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .dark-mode ::-webkit-scrollbar-thumb { background: #334155; }
+        .dark-mode ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Scroll Progress Bar */
+        #scroll-progress {
+            position: fixed;
+            top: 0; left: 0; width: 0%; height: 4px;
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+            z-index: 1001;
+            transition: width 0.1s ease-out;
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        /* Buttons & Cards Animation */
+        .btn-premium {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-premium:hover { transform: translateY(-3px); box-shadow: 0 15px 30px -10px rgba(251, 191, 36, 0.6); }
+
+        .card-modern {
+            transition: all 0.4s ease;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .card-modern:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+        .dark-mode .card-modern:hover { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+
+        /* Modals */
+        #mobileMenu {
+            transform: translateX(100%);
+            transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+            z-index: 9999;
+        }
+        #mobileMenu.active { transform: translateX(0); }
+
+        /* Text Gradients */
+        .text-gradient {
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Admin Trigger */
+        .admin-trigger {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 90;
+            opacity: 0.1;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .admin-trigger:hover { 
+            opacity: 1;
+            transform: translateX(-50%) scale(1.1);
+            bottom: 2rem;
+        }
+
+        /* Consultation Steps */
+        .step-content { display: none; }
+        .step-content.active { display: block; animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .category-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .category-card.selected {
+            border-color: #fbbf24;
+            background: rgba(251, 191, 36, 0.08);
+            transform: scale(1.03);
+        }
+    </style>
+</head>
+<body class="text-slate-900 selection:bg-yellow-200 selection:text-yellow-900">
+
+    <div id="scroll-progress"></div>
+
+    <!-- Custom Toast Notification -->
+    <div id="toast" class="fixed top-24 right-6 transform translate-x-48 opacity-0 transition-all duration-300 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-4 rounded-2xl shadow-2xl z-[100001] flex items-center gap-4 border border-white/10">
+        <div class="bg-yellow-400 p-2 rounded-full flex items-center justify-center">
+            <i class="fas fa-info text-slate-900 text-xs"></i>
+        </div>
+        <span id="toastMsg" class="text-sm font-bold tracking-wide"></span>
+    </div>
+
+    <!-- Floating Admin Trigger -->
+    <button onclick="openAdminLogin()" class="admin-trigger bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-5 py-2.5 rounded-full shadow-2xl flex items-center justify-center gap-2 border border-white/10">
+        <i class="fas fa-lock text-[10px]"></i>
+        <span class="text-[9px] font-black uppercase tracking-widest">Sistem Kontrol</span>
+    </button>
+
+    <!-- Admin Login Modal -->
+    <div id="adminLoginModal" class="hidden fixed inset-0 z-[100000] backdrop-blur-xl bg-slate-900/80 flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-slate-950 border border-white/10 p-10 rounded-[2.5rem] w-full max-w-sm text-center shadow-2xl transform transition-transform scale-95" id="adminLoginCard">
+            <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-user-shield text-2xl text-yellow-400"></i>
+            </div>
+            <h3 class="text-white font-black text-2xl mb-2 italic">AKSES <span class="text-yellow-400">ADMIN</span></h3>
+            <p class="text-slate-400 text-xs mb-8">Masukkan kode otorisasi sistem</p>
+            
+            <input type="password" id="adminPwd" class="w-full bg-slate-900 border border-white/10 focus:border-yellow-400 rounded-2xl p-4 text-white text-center mb-6 tracking-[0.5em] font-bold outline-none transition-colors" placeholder="••••••••">
+            
+            <div class="flex gap-3">
+                <button onclick="closeAdminLogin()" class="flex-1 py-4 text-white text-[10px] font-black uppercase tracking-widest bg-white/5 rounded-2xl hover:bg-white/10 transition-colors">Batal</button>
+                <button onclick="verifyAdmin()" class="flex-1 py-4 text-slate-900 text-[10px] font-black uppercase tracking-widest bg-yellow-400 rounded-2xl hover:bg-yellow-300 transition-colors shadow-lg shadow-yellow-400/20">Otorisasi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Consultation Hub Modal -->
+    <div id="consultModal" class="hidden fixed inset-0 z-[100000] backdrop-blur-md bg-slate-900/60 overflow-y-auto" onclick="handleOutsideClick(event)">
+        <div class="flex min-h-screen items-center justify-center p-4">
+            <div class="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[3rem] p-8 md:p-12 shadow-2xl relative overflow-hidden" onclick="event.stopPropagation()">
+                <!-- Close Button -->
+                <button onclick="closeConsultModal()" class="absolute top-8 right-8 w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10 dark:hover:text-red-400 transition-colors z-20">
+                    <i class="fas fa-times"></i>
+                </button>
+
+                <!-- Progress Bar -->
+                <div class="flex gap-3 mb-12 w-48 mx-auto">
+                    <div id="stepDot1" class="h-1.5 flex-1 rounded-full bg-yellow-400 transition-all duration-500"></div>
+                    <div id="stepDot2" class="h-1.5 flex-1 rounded-full bg-slate-200 dark:bg-slate-800 transition-all duration-500"></div>
+                    <div id="stepDot3" class="h-1.5 flex-1 rounded-full bg-slate-200 dark:bg-slate-800 transition-all duration-500"></div>
+                </div>
+
+                <form id="consultForm" onsubmit="handleConsultation(event)">
+                    <!-- STEP 1: Categories -->
+                    <div id="step1" class="step-content active">
+                        <div class="text-center mb-10">
+                            <h3 class="text-3xl md:text-4xl font-black italic dark:text-white uppercase tracking-tighter">PILIH <span class="text-yellow-500">KEBUTUHAN</span></h3>
+                            <p class="text-slate-500 text-sm mt-3">Spesifikasikan layanan yang Anda perlukan.</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 md:gap-6 mb-10">
+                            <div onclick="selectCategory('Instalasi Rumah', this)" class="category-card p-6 md:p-8 rounded-[2rem] bg-slate-50 dark:bg-slate-800 text-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/80">
+                                <div class="w-14 h-14 mx-auto bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-sm mb-4">
+                                    <i class="fas fa-home text-xl text-yellow-500"></i>
+                                </div>
+                                <span class="block text-[10px] md:text-xs font-black uppercase tracking-widest dark:text-white">Rumah</span>
+                            </div>
+                            <div onclick="selectCategory('Instalasi Komersial', this)" class="category-card p-6 md:p-8 rounded-[2rem] bg-slate-50 dark:bg-slate-800 text-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/80">
+                                <div class="w-14 h-14 mx-auto bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-sm mb-4">
+                                    <i class="fas fa-building text-xl text-yellow-500"></i>
+                                </div>
+                                <span class="block text-[10px] md:text-xs font-black uppercase tracking-widest dark:text-white">Komersial</span>
+                            </div>
+                            <div onclick="selectCategory('Perbaikan / Korsleting', this)" class="category-card p-6 md:p-8 rounded-[2rem] bg-slate-50 dark:bg-slate-800 text-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/80">
+                                <div class="w-14 h-14 mx-auto bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-sm mb-4">
+                                    <i class="fas fa-tools text-xl text-yellow-500"></i>
+                                </div>
+                                <span class="block text-[10px] md:text-xs font-black uppercase tracking-widest dark:text-white">Perbaikan</span>
+                            </div>
+                            <div onclick="selectCategory('Konsultasi Umum', this)" class="category-card p-6 md:p-8 rounded-[2rem] bg-slate-50 dark:bg-slate-800 text-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/80">
+                                <div class="w-14 h-14 mx-auto bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-sm mb-4">
+                                    <i class="fas fa-bolt text-xl text-yellow-500"></i>
+                                </div>
+                                <span class="block text-[10px] md:text-xs font-black uppercase tracking-widest dark:text-white">Umum</span>
+                            </div>
+                        </div>
+                        <button type="button" onclick="goToStep(2)" class="w-full bg-slate-950 dark:bg-white text-white dark:text-slate-950 font-black py-5 rounded-2xl hover:-translate-y-1 transition-transform shadow-xl shadow-slate-900/10 italic uppercase tracking-widest text-xs">Lanjutkan</button>
+                    </div>
+
+                    <!-- STEP 2: Details -->
+                    <div id="step2" class="step-content">
+                        <div class="text-center mb-10">
+                            <h3 class="text-3xl md:text-4xl font-black italic dark:text-white uppercase tracking-tighter">DATA <span class="text-yellow-500">DIRI</span></h3>
+                            <p class="text-slate-500 text-sm mt-3">Informasi kontak untuk tim teknis kami.</p>
+                        </div>
+                        <div class="space-y-5 mb-10">
+                            <div>
+                                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-2">Nama Lengkap</label>
+                                <input type="text" id="cName" required class="w-full p-5 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border-none outline-none focus:ring-2 focus:ring-yellow-400 transition-shadow" placeholder="Masukkan nama Anda">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-2">Area / Lokasi</label>
+                                <input type="text" id="cLocation" required class="w-full p-5 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border-none outline-none focus:ring-2 focus:ring-yellow-400 transition-shadow" placeholder="Contoh: Kebumen Kota">
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <button type="button" onclick="goToStep(1)" class="w-1/3 bg-slate-100 dark:bg-slate-800 dark:text-white font-black py-5 rounded-2xl uppercase tracking-widest text-[10px] hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Kembali</button>
+                            <button type="button" onclick="goToStep(3)" class="w-2/3 bg-slate-950 dark:bg-white text-white dark:text-slate-950 font-black py-5 rounded-2xl shadow-xl hover:-translate-y-1 transition-transform uppercase tracking-widest text-[10px]">Lanjutkan</button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: Message -->
+                    <div id="step3" class="step-content">
+                        <div class="text-center mb-10">
+                            <h3 class="text-3xl md:text-4xl font-black italic dark:text-white uppercase tracking-tighter">DETAIL <span class="text-yellow-500">KELUHAN</span></h3>
+                            <p class="text-slate-500 text-sm mt-3">Ceritakan masalah atau rencana instalasi Anda.</p>
+                        </div>
+                        <div class="mb-10">
+                            <textarea id="cMessage" required rows="5" class="w-full p-6 rounded-[2rem] bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border-none outline-none focus:ring-2 focus:ring-yellow-400 transition-shadow resize-none" placeholder="Contoh: Saya berencana mengganti panel MCB dan menambah 5 titik lampu..."></textarea>
+                        </div>
+                        <div class="flex gap-4">
+                            <button type="button" onclick="goToStep(2)" class="w-1/3 bg-slate-100 dark:bg-slate-800 dark:text-white font-black py-5 rounded-2xl uppercase tracking-widest text-[10px] hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Kembali</button>
+                            <button type="submit" class="w-2/3 bg-yellow-400 text-slate-950 font-black py-5 rounded-2xl shadow-xl shadow-yellow-400/20 hover:-translate-y-1 transition-transform italic uppercase tracking-widest text-xs flex items-center justify-center gap-3">
+                                <i class="fab fa-whatsapp text-lg"></i> Kirim ke WA
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="fixed inset-0 bg-slate-950 flex flex-col p-10 backdrop-blur-xl bg-opacity-95">
+        <div class="flex justify-between items-center mb-16">
+            <span class="text-2xl font-black text-white italic">VOLT<span class="text-yellow-400">SOUTH</span></span>
+            <button onclick="toggleMobileMenu()" class="text-white w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div class="flex flex-col gap-8 text-3xl font-black text-white italic tracking-tighter">
+            <a href="#home" onclick="toggleMobileMenu()" class="hover:text-yellow-400 hover:translate-x-4 transition-all">HOME</a>
+            <a href="#layanan" onclick="toggleMobileMenu()" class="hover:text-yellow-400 hover:translate-x-4 transition-all">LAYANAN</a>
+            <a href="#produk" onclick="toggleMobileMenu()" class="hover:text-yellow-400 hover:translate-x-4 transition-all">MATERIAL</a>
+            <a href="#estimator" onclick="toggleMobileMenu()" class="hover:text-yellow-400 hover:translate-x-4 transition-all">ESTIMATOR</a>
+        </div>
+        <div class="mt-auto">
+            <button onclick="toggleMobileMenu(); openConsultModal();" class="w-full bg-yellow-400 text-slate-900 py-5 rounded-2xl font-black italic uppercase tracking-widest text-sm">Konsultasi Sekarang</button>
+        </div>
+    </div>
+
+    <!-- Admin Panel (Data Management) -->
+    <div id="adminPanel" class="hidden fixed inset-0 z-[100000] backdrop-blur-2xl bg-slate-950/90 overflow-y-auto" onclick="handleOutsideClick(event)">
+        <div class="max-w-5xl mx-auto px-6 py-16" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-end mb-12 border-b border-white/10 pb-8">
+                <div>
+                    <h2 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight italic">SISTEM <span class="text-yellow-400">KONTROL</span></h2>
+                    <p class="text-yellow-400/80 font-medium mt-2 uppercase tracking-[0.3em] text-[10px]">Akses Administrator Aktif</p>
+                </div>
+                <button onclick="closeAdminPanel()" class="w-12 h-12 bg-white/5 hover:bg-red-500 flex items-center justify-center rounded-2xl transition-colors group">
+                    <i class="fas fa-power-off text-white group-hover:scale-110 transition-transform"></i>
+                </button>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Update Tarif -->
+                <div class="md:col-span-1 bg-white/5 border border-white/10 rounded-[2.5rem] p-8 backdrop-blur-md h-fit">
+                     <div class="w-12 h-12 bg-yellow-400/20 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-tags text-yellow-400 text-xl"></i>
+                     </div>
+                     <h3 class="text-white font-bold text-xl mb-2">Update Tarif</h3>
+                     <p class="text-slate-400 text-xs mb-6 leading-relaxed">Sesuaikan tarif dasar per titik untuk kalkulator estimasi secara realtime.</p>
+                     
+                     <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-bold">Harga per Titik (Rp)</label>
+                     <input type="number" id="adminRate" class="w-full p-4 rounded-xl bg-slate-900 text-white border border-white/10 focus:border-yellow-400 outline-none mb-6 font-mono" placeholder="150000">
+                     
+                     <button onclick="saveRate()" class="w-full bg-white text-slate-900 font-black py-4 rounded-xl uppercase tracking-widest text-[10px] hover:bg-yellow-400 transition-colors shadow-lg">Simpan Tarif</button>
+                </div>
+
+                <!-- Tambah Material -->
+                <div class="md:col-span-2 bg-white/5 border border-white/10 rounded-[2.5rem] p-8 backdrop-blur-md">
+                    <div class="w-12 h-12 bg-yellow-400/20 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-box-open text-yellow-400 text-xl"></i>
+                     </div>
+                    <h3 class="text-white font-bold text-xl mb-2">Tambah Material Katalog</h3>
+                    <p class="text-slate-400 text-xs mb-8 leading-relaxed">Tambahkan produk material baru yang akan langsung muncul di halaman utama.</p>
+                    
+                    <div class="grid sm:grid-cols-2 gap-5 mb-6">
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-bold">Nama Produk</label>
+                            <input type="text" id="adminProdName" class="w-full p-4 rounded-xl bg-slate-900 text-white border border-white/10 focus:border-yellow-400 outline-none" placeholder="Mis: Kabel Supreme 3x2.5">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-bold">Harga Tampil</label>
+                            <input type="text" id="adminProdPrice" class="w-full p-4 rounded-xl bg-slate-900 text-white border border-white/10 focus:border-yellow-400 outline-none" placeholder="Mis: Rp 650.000 / Roll">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-bold">Kategori</label>
+                            <input type="text" id="adminProdCategory" class="w-full p-4 rounded-xl bg-slate-900 text-white border border-white/10 focus:border-yellow-400 outline-none" placeholder="Kabel, Saklar, Panel, dll">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-2 font-bold">URL Gambar (Unsplash/Imgur)</label>
+                            <input type="text" id="adminProdImg" class="w-full p-4 rounded-xl bg-slate-900 text-white border border-white/10 focus:border-yellow-400 outline-none" placeholder="https://images.unsplash.com/...">
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end gap-3 pt-4 border-t border-white/5 mt-4">
+                        <button onclick="resetProducts()" class="bg-red-500/10 text-red-400 font-black py-4 px-6 rounded-xl uppercase tracking-widest text-[10px] hover:bg-red-500 hover:text-white transition-colors">Reset Default</button>
+                        <button onclick="saveProduct()" class="bg-yellow-400 text-slate-900 font-black py-4 px-8 rounded-xl uppercase tracking-widest text-[10px] hover:bg-yellow-300 transition-colors shadow-lg shadow-yellow-400/20">Tambah Ke Katalog</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 transition-all duration-300 glass" id="navbar">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="flex items-center gap-3 group cursor-pointer" onclick="window.scrollTo(0,0)">
+                <div class="bg-slate-950 dark:bg-white p-2.5 rounded-xl group-hover:scale-105 transition-transform">
+                    <i class="fas fa-bolt text-yellow-400 dark:text-slate-900 text-xl"></i>
+                </div>
+                <span class="text-2xl font-black tracking-tighter italic dark:text-white">VOLT<span class="text-yellow-500">SOUTH</span></span>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-8 font-bold text-slate-600 dark:text-slate-300 text-[10px] uppercase tracking-[0.2em]">
+                <a href="#home" class="hover:text-yellow-500 transition-colors">Home</a>
+                <a href="#layanan" class="hover:text-yellow-500 transition-colors">Layanan</a>
+                <a href="#produk" class="hover:text-yellow-500 transition-colors">Material</a>
+                <a href="#estimator" class="hover:text-yellow-500 transition-colors">Estimator</a>
+                
+                <div class="flex items-center gap-4 border-l border-slate-200 dark:border-slate-700 pl-6 ml-2">
+                    <button id="themeToggle" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-lg">
+                        <i class="fas fa-moon text-slate-600 dark:hidden"></i>
+                        <i class="fas fa-sun text-yellow-400 hidden dark:inline"></i>
+                    </button>
+                    <button onclick="openConsultModal()" class="btn-premium bg-slate-950 dark:bg-white text-white dark:text-slate-900 px-7 py-3 rounded-full shadow-lg shadow-slate-900/10 dark:shadow-white/10 text-[10px] font-black italic tracking-widest">KONSULTASI</button>
+                </div>
+            </div>
+
+            <div class="flex md:hidden items-center gap-4">
+                <button id="themeToggleMobile" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-lg">
+                    <i class="fas fa-moon text-slate-600 dark:hidden"></i>
+                    <i class="fas fa-sun text-yellow-400 hidden dark:inline"></i>
+                </button>
+                <button onclick="toggleMobileMenu()" class="text-2xl text-slate-900 dark:text-white p-2">
+                    <i class="fas fa-bars-staggered"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-screen flex items-center overflow-hidden bg-slate-50 dark:bg-slate-950 pt-20">
+        <!-- Background Elements -->
+        <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-yellow-400/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+        <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-400/5 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4"></div>
+
+        <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center relative z-10 w-full py-20">
+            <div data-aos="fade-right">
+                <div class="inline-flex items-center gap-2 bg-yellow-400/10 border border-yellow-400/20 text-yellow-600 dark:text-yellow-400 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.3em] mb-8">
+                    <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+                    Premium Electrical Solutions
+                </div>
+                <h1 class="text-6xl md:text-7xl lg:text-[5.5rem] font-black leading-[0.9] tracking-tighter mb-8 italic dark:text-white">POWERING<br><span class="text-gradient">EXCELLENCE.</span></h1>
+                <p class="text-slate-500 dark:text-slate-400 text-lg md:text-xl mb-12 max-w-lg leading-relaxed font-medium">Instalasi kelistrikan modern standar industri untuk keamanan dan kenyamanan residensial & komersial Anda di Kebumen.</p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button onclick="openConsultModal()" class="btn-premium bg-slate-950 dark:bg-white text-white dark:text-slate-950 px-10 py-5 rounded-2xl font-black italic tracking-widest text-xs flex items-center justify-center gap-3">
+                        MULAI PROYEK <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button onclick="document.getElementById('layanan').scrollIntoView({behavior: 'smooth'})" class="px-10 py-5 rounded-2xl font-black tracking-widest text-xs border-2 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors uppercase flex items-center justify-center">
+                        Pelajari Sistem
+                    </button>
+                </div>
+            </div>
+            <div class="relative hidden lg:block" data-aos="zoom-in" data-aos-delay="200">
+                <div class="absolute inset-0 bg-gradient-to-tr from-yellow-400 to-transparent rounded-[3rem] rotate-6 opacity-20 dark:opacity-10 scale-105"></div>
+                <img src="https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&q=80&w=1000" class="rounded-[3rem] shadow-2xl relative z-10 w-full object-cover aspect-[4/5] border-8 border-white dark:border-slate-900" alt="Instalasi Listrik">
+                
+                <!-- Floating Badge -->
+                <div class="absolute bottom-10 -left-10 bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-2xl z-20 flex items-center gap-5 border border-slate-100 dark:border-slate-700 animate-bounce" style="animation-duration: 3s;">
+                    <div class="w-14 h-14 bg-green-500/10 rounded-full flex items-center justify-center">
+                        <i class="fas fa-shield-check text-2xl text-green-500"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-1">Standar Keamanan</p>
+                        <p class="text-lg font-black italic dark:text-white">SNI & PUIL 2011</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Overview -->
+    <section id="layanan" class="py-32 bg-white dark:bg-slate-900 border-y border-slate-100 dark:border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-3 gap-12">
+                <div data-aos="fade-up" data-aos-delay="100">
+                    <i class="fas fa-home text-4xl text-yellow-400 mb-6"></i>
+                    <h3 class="text-2xl font-black italic mb-4 dark:text-white">Residensial</h3>
+                    <p class="text-slate-500 dark:text-slate-400 leading-relaxed">Pemasangan instalasi rumah baru, peremajaan kabel tua, dan sistem smart home untuk kenyamanan keluarga.</p>
+                </div>
+                <div data-aos="fade-up" data-aos-delay="200">
+                    <i class="fas fa-building text-4xl text-yellow-400 mb-6"></i>
+                    <h3 class="text-2xl font-black italic mb-4 dark:text-white">Komersial</h3>
+                    <p class="text-slate-500 dark:text-slate-400 leading-relaxed">Perancangan kelistrikan ruko, kantor, atau gudang dengan perhitungan beban 3 phase yang akurat dan aman.</p>
+                </div>
+                <div data-aos="fade-up" data-aos-delay="300">
+                    <i class="fas fa-toolbox text-4xl text-yellow-400 mb-6"></i>
+                    <h3 class="text-2xl font-black italic mb-4 dark:text-white">Troubleshooting</h3>
+                    <p class="text-slate-500 dark:text-slate-400 leading-relaxed">Pelacakan jalur korsleting, penyeimbangan beban (balancing phase), dan perbaikan panel distribusi (MCB/MCCB).</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Service Catalog (Material) -->
+    <section id="produk" class="py-32 bg-slate-50 dark:bg-slate-950">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-20 gap-8" data-aos="fade-up">
+                <div>
+                    <h2 class="text-4xl md:text-5xl font-black italic uppercase tracking-tighter mb-4 dark:text-white">KATALOG <span class="text-yellow-500">MATERIAL</span></h2>
+                    <p class="text-slate-500 dark:text-slate-400 max-w-md">Kualitas material adalah kunci keawetan instalasi. Kami menyediakan supply komponen original.</p>
+                </div>
+                <div class="bg-yellow-400/10 text-yellow-600 dark:text-yellow-400 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap">
+                    <i class="fas fa-check-circle mr-2"></i> 100% Original
+                </div>
+            </div>
+            
+            <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Products injected via JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Estimator Section -->
+    <section id="estimator" class="py-32 bg-white dark:bg-slate-900 relative border-t border-slate-100 dark:border-slate-800">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid lg:grid-cols-5 gap-16 items-center">
+                <div class="lg:col-span-2" data-aos="fade-right">
+                    <div class="w-16 h-16 bg-yellow-400/20 rounded-2xl flex items-center justify-center mb-8">
+                        <i class="fas fa-calculator text-3xl text-yellow-500"></i>
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-black italic leading-tight mb-6 dark:text-white">TRANSPARANSI<br><span class="text-yellow-500 uppercase italic">BIAYA.</span></h2>
+                    <p class="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed">Gunakan kalkulator kami untuk mendapatkan perkiraan estimasi jasa instalasi. *Harga belum termasuk material utama.</p>
+                    <button onclick="openConsultModal()" class="btn-premium bg-slate-950 dark:bg-white text-white dark:text-slate-950 px-8 py-4 rounded-xl font-black italic uppercase text-[10px] tracking-widest shadow-lg">Ajukan Penawaran Resmi</button>
+                </div>
+                
+                <div class="lg:col-span-3 bg-slate-950 rounded-[3rem] md:rounded-[4rem] p-8 md:p-16 text-white text-center shadow-2xl relative overflow-hidden" data-aos="fade-left">
+                    <!-- Decor -->
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-yellow-400/5 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
+                    
+                    <div class="relative z-10">
+                        <label class="block text-xs uppercase tracking-[0.3em] font-bold text-slate-400 mb-8">Geser Untuk Menentukan Jumlah Titik</label>
+                        
+                        <div class="relative mb-16">
+                            <input type="range" id="rangeTitik" min="1" max="100" value="15" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-yellow-400 relative z-10">
+                        </div>
+
+                        <div class="flex flex-col items-center py-10 border-y border-white/10 mb-10">
+                            <div id="labelTitik" class="text-6xl md:text-7xl font-black mb-4 italic text-yellow-400">15 <span class="text-2xl text-white">Titik</span></div>
+                            <div id="labelRate" class="text-[10px] md:text-xs text-slate-400 uppercase tracking-widest font-bold mb-6 bg-white/5 px-4 py-2 rounded-full border border-white/5">Memuat rate...</div>
+                            <div class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Estimasi Biaya Jasa</div>
+                            <div id="totalEstimasi" class="text-4xl md:text-5xl font-black text-white tracking-tight">Rp 0</div>
+                        </div>
+                        
+                        <button onclick="requestEstimateWA()" class="group w-full bg-white/5 hover:bg-yellow-400 border border-white/10 hover:border-yellow-400 text-white hover:text-slate-900 py-5 rounded-2xl transition-all duration-300 font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3">
+                            <i class="fab fa-whatsapp text-lg group-hover:scale-110 transition-transform"></i> Kirim Hasil Estimasi ke WA
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 text-white py-20 text-center border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="mb-10 flex justify-center items-center gap-3 cursor-pointer hover:scale-105 transition-transform" onclick="window.scrollTo(0,0)">
+                <div class="bg-yellow-400 p-3 rounded-xl">
+                    <i class="fas fa-bolt text-slate-900 text-2xl"></i>
+                </div>
+                <span class="text-3xl font-black italic tracking-tighter">VOLT<span class="text-slate-500">SOUTH</span></span>
+            </div>
+            
+            <div class="flex justify-center gap-6 mb-12">
+                <a href="#" class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-yellow-400 hover:bg-white/10 transition-all"><i class="fab fa-instagram text-xl"></i></a>
+                <a href="#" class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-yellow-400 hover:bg-white/10 transition-all"><i class="fab fa-whatsapp text-xl"></i></a>
+                <a href="#" class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-yellow-400 hover:bg-white/10 transition-all"><i class="fab fa-facebook text-xl"></i></a>
+            </div>
+
+            <p class="text-[10px] md:text-xs uppercase tracking-[0.4em] font-bold text-slate-600">&copy; 2026 VOLTSOUTH ENGINEERING. JAYAPURA / KEBUMEN.</p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // === CORE CONFIGURATION ===
+        const _k = "ZGF2aXE="; // 'daviq' -> base64
+        const targetPhone = "6282241502056";
+        
+        // Data State
+        let serviceRate = 150000;
+        let currentStep = 1;
+        let selectedCategoryValue = '';
+        
+        // Default Products
+        const defaultProducts = [
+            { name: 'Schneider Vivace 1 Gang', price: 'Rp 48.000', category: 'Saklar', img: 'https://images.unsplash.com/photo-1558002038-1055907df827?q=80&w=600' },
+            { name: 'Eterna NYM 3x2.5 (50m)', price: 'Rp 875.000', category: 'Kabel', img: 'https://images.unsplash.com/photo-1621905252507-b354bcadcabc?q=80&w=600' },
+            { name: 'Panasonic LED 12W', price: 'Rp 65.000', category: 'Lampu', img: 'https://images.unsplash.com/photo-1550985543-f47f38aee65e?q=80&w=600' },
+            { name: 'Broco Stop Kontak 4L', price: 'Rp 125.000', category: 'Stop Kontak', img: 'https://images.unsplash.com/photo-1594914141253-19fc8e841262?q=80&w=600' }
+        ];
+        
+        let products = [...defaultProducts];
+
+        // === INITIALIZATION ===
+        document.addEventListener('DOMContentLoaded', () => {
+            AOS.init({ duration: 800, once: true, offset: 50 });
+            initTheme();
+            loadLocalStorage();
+            renderProducts();
+            updateEstimator();
+            initScrollProgress();
+        });
+
+        // === UI UTILITIES ===
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            t.classList.remove('translate-x-48', 'opacity-0');
+            setTimeout(() => {
+                t.classList.add('translate-x-48', 'opacity-0');
+            }, 3000);
+        }
+
+        // === THEME HANDLING ===
+        function initTheme() {
+            const isDark = localStorage.getItem('voltsouth_theme') === 'dark';
+            if (isDark) document.body.classList.add('dark-mode');
+            
+            const toggleTheme = () => {
+                document.body.classList.toggle('dark-mode');
+                const darkActive = document.body.classList.contains('dark-mode');
+                localStorage.setItem('voltsouth_theme', darkActive ? 'dark' : 'light');
+            };
+
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            document.getElementById('themeToggleMobile').addEventListener('click', toggleTheme);
+        }
+
+        // === SCROLL PROGRESS ===
+        function initScrollProgress() {
+            window.addEventListener('scroll', () => {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                document.getElementById('scroll-progress').style.width = scrolled + '%';
+                
+                // Navbar glass effect enhancement
+                const nav = document.getElementById('navbar');
+                if(winScroll > 50) nav.classList.add('shadow-sm');
+                else nav.classList.remove('shadow-sm');
+            });
+        }
+
+        // === MULTI-STEP CONSULTATION ===
+        function openConsultModal() {
+            document.getElementById('consultModal').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('consultModal').classList.remove('hidden');
+                document.getElementById('consultModal').style.opacity = '1';
+            }, 10);
+            document.body.style.overflow = 'hidden';
+            goToStep(1); 
+        }
+
+        function closeConsultModal() {
+            document.getElementById('consultModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function goToStep(step) {
+            if (step === 2 && !selectedCategoryValue) {
+                showToast("Silakan pilih kategori kebutuhan terlebih dahulu.");
+                return;
+            }
+            if (step === 3 && (!document.getElementById('cName').value || !document.getElementById('cLocation').value)) {
+                showToast("Mohon lengkapi nama dan lokasi Anda.");
+                return;
+            }
+
+            document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active'));
+            document.getElementById(`step${step}`).classList.add('active');
+            
+            for (let i = 1; i <= 3; i++) {
+                const dot = document.getElementById(`stepDot${i}`);
+                if (i <= step) {
+                    dot.className = "h-1.5 flex-1 rounded-full bg-yellow-400 transition-all duration-500 shadow-[0_0_10px_rgba(251,191,36,0.5)]";
+                } else {
+                    dot.className = "h-1.5 flex-1 rounded-full bg-slate-200 dark:bg-slate-800 transition-all duration-500";
+                }
+            }
+            currentStep = step;
+        }
+
+        function selectCategory(val, el) {
+            selectedCategoryValue = val;
+            document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function handleConsultation(e) {
+            e.preventDefault();
+            const name = document.getElementById('cName').value;
+            const loc = document.getElementById('cLocation').value;
+            const msg = document.getElementById('cMessage').value;
+            
+            const waText = `*HUB KONSULTASI VOLTSOUTH*\n\n` +
+                         `*Layanan:* ${selectedCategoryValue}\n` +
+                         `*Nama:* ${name}\n` +
+                         `*Lokasi:* ${loc}\n` +
+                         `*Kebutuhan:* ${msg}\n\n` +
+                         `_Dikirim via Website Voltsouth_`;
+            
+            window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(waText)}`, '_blank');
+            closeConsultModal();
+            showToast("Membuka WhatsApp...");
+        }
+
+        // === ADMIN & DATA MANAGEMENT ===
+        function openAdminLogin() {
+            const modal = document.getElementById('adminLoginModal');
+            modal.classList.remove('hidden');
+            document.getElementById('adminPwd').value = '';
+            document.getElementById('adminPwd').focus();
+        }
+
+        function closeAdminLogin() {
+            document.getElementById('adminLoginModal').classList.add('hidden');
+        }
+
+        function verifyAdmin() {
+            const pwd = document.getElementById('adminPwd').value;
+            if (btoa(pwd.toLowerCase()) === _k || pwd === 'daviq') {
+                closeAdminLogin();
+                openAdminPanel();
+                showToast("Akses Admin Diberikan");
+            } else {
+                showToast("Akses Ditolak: Sandi Salah");
+                document.getElementById('adminPwd').value = '';
+                // Shake effect
+                const card = document.getElementById('adminLoginCard');
+                card.classList.add('translate-x-2');
+                setTimeout(() => card.classList.remove('translate-x-2'), 100);
+            }
+        }
+
+        function openAdminPanel() {
+            document.getElementById('adminPanel').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            document.getElementById('adminRate').value = serviceRate;
+        }
+
+        function closeAdminPanel() {
+            document.getElementById('adminPanel').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function saveRate() {
+            const newRate = parseInt(document.getElementById('adminRate').value);
+            if(newRate && newRate > 0) {
+                serviceRate = newRate;
+                localStorage.setItem('voltsouth_rate', serviceRate);
+                updateEstimator();
+                showToast("Tarif berhasil diperbarui!");
+            } else {
+                showToast("Masukkan angka yang valid.");
+            }
+        }
+
+        function saveProduct() {
+            const name = document.getElementById('adminProdName').value;
+            const price = document.getElementById('adminProdPrice').value;
+            const cat = document.getElementById('adminProdCategory').value;
+            const imgUrl = document.getElementById('adminProdImg').value;
+
+            if(!name || !price || !cat) {
+                showToast("Lengkapi form produk!");
+                return;
+            }
+
+            const newProd = {
+                name: name,
+                price: price,
+                category: cat,
+                img: imgUrl || 'https://images.unsplash.com/photo-1621905252507-b354bcadcabc?auto=format&fit=crop&q=80&w=600'
+            };
+
+            products.push(newProd);
+            localStorage.setItem('voltsouth_products', JSON.stringify(products));
+            renderProducts();
+            
+            // Clear inputs
+            document.getElementById('adminProdName').value = '';
+            document.getElementById('adminProdPrice').value = '';
+            document.getElementById('adminProdCategory').value = '';
+            document.getElementById('adminProdImg').value = '';
+            
+            showToast("Produk ditambahkan ke katalog!");
+        }
+
+        function resetProducts() {
+            products = [...defaultProducts];
+            localStorage.setItem('voltsouth_products', JSON.stringify(products));
+            renderProducts();
+            showToast("Katalog dikembalikan ke default!");
+        }
+
+        // === ESTIMATOR & PRODUCTS RENDER ===
+        function updateEstimator() {
+            const range = document.getElementById('rangeTitik');
+            const titik = parseInt(range.value);
+            
+            document.getElementById('labelTitik').innerHTML = `${titik} <span class="text-2xl text-white">Titik</span>`;
+            
+            const fmt = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
+            document.getElementById('labelRate').innerText = `RATE DASAR: ${fmt.format(serviceRate)} / TITIK`;
+            document.getElementById('totalEstimasi').innerText = fmt.format(titik * serviceRate);
+        }
+
+        function requestEstimateWA() {
+            const titik = document.getElementById('rangeTitik').value;
+            const total = document.getElementById('totalEstimasi').innerText;
+            const text = `Halo Voltsouth! Saya ingin berkonsultasi mengenai estimasi instalasi:\n\n*Jumlah Titik:* ${titik} Titik\n*Estimasi Jasa:* ${total}\n\nMohon informasi lebih lanjut dan ketersediaan waktu untuk survey lokasi. Terima kasih.`;
+            window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function loadLocalStorage() {
+            const savedProducts = localStorage.getItem('voltsouth_products');
+            if (savedProducts) {
+                try {
+                    products = JSON.parse(savedProducts);
+                } catch(e) { console.error("Error parsing products", e); }
+            }
+            const savedRate = localStorage.getItem('voltsouth_rate');
+            if (savedRate) serviceRate = parseInt(savedRate);
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('productGrid');
+            if(grid) {
+                grid.innerHTML = products.map((p, index) => `
+                    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-5 card-modern cursor-pointer group flex flex-col h-full border border-slate-100 dark:border-white/5" 
+                         onclick="orderProduct('${p.name}')" data-aos="fade-up" data-aos-delay="${(index % 4) * 100}">
+                        <div class="relative overflow-hidden rounded-[2rem] mb-6 aspect-square bg-slate-100 dark:bg-slate-800">
+                            <img src="${p.img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1621905252507-b354bcadcabc?auto=format&fit=crop&q=80&w=600'">
+                            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                <span class="bg-yellow-400 text-slate-900 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-all">Pesan Sekarang</span>
+                            </div>
+                        </div>
+                        <div class="text-center flex-grow flex flex-col justify-end">
+                            <span class="text-[9px] font-black uppercase text-yellow-500 tracking-widest block mb-2">${p.category}</span>
+                            <h4 class="text-lg font-bold dark:text-white mb-4 leading-tight">${p.name}</h4>
+                            <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl font-black text-slate-900 dark:text-white mt-auto">${p.price}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function orderProduct(name) {
+            const text = `Halo Voltsouth! Saya tertarik untuk memesan material berikut dari katalog website:\n\n*Nama Material:* ${name}\n\nApakah stoknya tersedia?`;
+            window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        // === EVENT LISTENERS ===
+        function toggleMobileMenu() { 
+            document.getElementById('mobileMenu').classList.toggle('active'); 
+        }
+        
+        function handleOutsideClick(e) { 
+            if(e.target.id === 'adminPanel') closeAdminPanel(); 
+            if(e.target.id === 'consultModal') closeConsultModal(); 
+            if(e.target.id === 'adminLoginModal') closeAdminLogin(); 
+        }
+
+        document.getElementById('rangeTitik').addEventListener('input', updateEstimator);
+        
+        // Listen for Enter key on Admin password
+        document.getElementById('adminPwd').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') verifyAdmin();
+        });
+    </script>
+</body>
+</html>
+
