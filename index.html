@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MAINTENANCE.HUB YAPIKA</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         /* Custom scrollbar untuk tabel */
@@ -27,15 +25,13 @@
 </head>
 <body class="bg-slate-100 flex flex-col min-h-screen font-sans text-slate-800">
 
-    <!-- GLOBAL LOADER -->
     <div id="global-loader" class="fixed inset-0 bg-slate-50 z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
         <i data-lucide="loader-2" class="w-12 h-12 text-teal-600 animate-spin mb-4"></i>
         <p class="text-teal-800 font-bold tracking-wide animate-pulse">Menghubungkan ke Server...</p>
         <p class="text-xs text-slate-500 mt-2">Memuat data fasilitas YAPIKA</p>
     </div>
 
-    <!-- HEADER -->
-    <header class="bg-teal-700 text-white shadow-md sticky top-0 z-50">
+    <header class="bg-teal-700 text-white shadow-md sticky top-0 z-50 no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3 cursor-pointer transition-transform hover:scale-105" onclick="changeView('portal')">
                 <div class="bg-white p-2 rounded-full text-teal-700 flex items-center justify-center shadow-inner">
@@ -50,23 +46,20 @@
         </div>
     </header>
 
-    <!-- TOAST NOTIFICATION -->
-    <div id="toast-notification" class="fixed top-24 right-4 z-50 hidden transition-opacity duration-300 opacity-0 pointer-events-none">
+    <div id="toast-notification" class="fixed top-24 right-4 z-50 hidden transition-opacity duration-300 opacity-0 pointer-events-none no-print">
         <div class="bg-teal-800 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 transform transition-transform hover:scale-105">
             <i data-lucide="check-circle" class="w-5 h-5 text-teal-400"></i>
             <span id="toast-message" class="font-medium text-sm">Notifikasi</span>
         </div>
     </div>
 
-    <!-- ERROR NOTIFICATION -->
-    <div id="error-notification" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 hidden transition-all duration-300 opacity-0 pointer-events-none w-[90%] max-w-md">
+    <div id="error-notification" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 hidden transition-all duration-300 opacity-0 pointer-events-none w-[90%] max-w-md no-print">
         <div class="bg-red-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-start space-x-3">
             <i data-lucide="alert-triangle" class="w-5 h-5 text-red-200 shrink-0 mt-0.5"></i>
             <span id="error-message" class="font-medium text-sm">Terjadi kesalahan.</span>
         </div>
     </div>
 
-    <!-- VIEW: PORTAL (FORM PELAPORAN) -->
     <main id="view-portal" class="max-w-3xl mx-auto px-4 py-8 sm:py-12 w-full transition-all duration-300">
         <div class="text-center mb-10">
             <h2 class="text-3xl font-extrabold text-slate-800 mb-3 tracking-tight">Lapor Kerusakan</h2>
@@ -125,7 +118,6 @@
         </footer>
     </main>
 
-    <!-- VIEW: LOGIN -->
     <main id="view-login" class="flex-1 flex flex-col items-center justify-center p-4 hidden w-full">
         <div class="bg-white p-8 sm:p-10 rounded-3xl shadow-2xl w-full max-w-md text-center border border-slate-100 transform transition-all">
             <div class="inline-flex bg-teal-50 p-4 rounded-full mb-6">
@@ -147,7 +139,6 @@
         </div>
     </main>
 
-    <!-- VIEW: ADMIN -->
     <main id="view-admin" class="max-w-7xl mx-auto px-4 py-8 hidden w-full animate-fadeIn">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
@@ -187,7 +178,6 @@
                         <i data-lucide="settings" class="w-4 h-4 mr-2"></i> Pengaturan
                     </button>
                 </div>
-                <!-- Search Bar (Only visible in Tickets tab) -->
                 <div id="search-container" class="p-2 sm:p-3 sm:ml-auto w-full sm:w-auto">
                     <div class="relative">
                         <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"></i>
@@ -196,7 +186,6 @@
                 </div>
             </div>
 
-            <!-- TAB: TICKETS -->
             <div id="tab-tickets" class="overflow-x-auto">
                 <table class="w-full text-left min-w-[900px]">
                     <thead class="bg-slate-50 text-[11px] uppercase text-slate-500 border-b tracking-wider">
@@ -209,12 +198,10 @@
                         </tr>
                     </thead>
                     <tbody id="table-body" class="divide-y divide-slate-100">
-                        <!-- Konten tabel dimuat via JS -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
 
-            <!-- TAB: REPORTS (LAPORAN BULANAN) -->
             <div id="tab-reports" class="p-6 sm:p-8 hidden space-y-6 bg-white">
                 <div class="mb-4 text-center">
                     <h3 class="text-xl font-bold text-slate-800 uppercase tracking-wider">Laporan Bulanan Pemeliharaan</h3>
@@ -237,8 +224,7 @@
                 </div>
 
                 <div id="report-summary" class="grid grid-cols-2 sm:grid-cols-4 gap-3 hidden">
-                    <!-- Diisi via JS -->
-                </div>
+                    </div>
 
                 <div id="report-table-container" class="overflow-x-auto hidden border border-slate-200 rounded-xl mt-6">
                     <table class="w-full text-left min-w-[800px]">
@@ -256,10 +242,8 @@
                 </div>
             </div>
 
-            <!-- TAB: SETTINGS -->
             <div id="tab-settings" class="p-6 sm:p-8 hidden space-y-8 bg-white no-print">
                 
-                <!-- Info Peringatan -->
                 <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start">
                     <i data-lucide="info" class="w-5 h-5 text-blue-500 mt-0.5 mr-3 shrink-0"></i>
                     <div>
@@ -268,14 +252,20 @@
                     </div>
                 </div>
 
-                <!-- WA Settings -->
                 <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
                     <h4 class="font-bold mb-4 flex items-center text-green-700">
                         <div class="bg-green-100 p-1.5 rounded-lg mr-2"><i data-lucide="message-circle" class="w-4 h-4 text-green-600"></i></div>
                         Integrasi Notifikasi WhatsApp
                     </h4>
-                    <p class="text-xs text-slate-500 mb-4">Isi salah satu (atau keduanya). Jika nomor Admin diisi, laporan akan diteruskan ke Chat Pribadi. Jika Grup diisi, Admin akan diarahkan untuk Paste teks laporan di grup.</p>
+                    <p class="text-xs text-slate-500 mb-4">Pilih tujuan laporan dan masukkan informasi yang diperlukan. Laporan baru akan diteruskan sesuai pilihan Anda.</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Tujuan Pengiriman Notifikasi</label>
+                            <select id="wa-target" class="w-full p-3 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-green-500 outline-none cursor-pointer">
+                                <option value="admin">Kirim ke Nomor WA Admin (Pribadi)</option>
+                                <option value="group">Kirim ke Grup WhatsApp</option>
+                            </select>
+                        </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">No. WA Admin (Gunakan 62)</label>
                             <input type="text" id="wa-number" placeholder="Contoh: 628123456789" class="w-full p-3 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-green-500 outline-none">
@@ -293,7 +283,6 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Lokasi -->
                     <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
                         <h4 class="font-bold mb-4 flex items-center text-teal-800">
                             <i data-lucide="map-pin" class="w-4 h-4 mr-2 text-teal-600"></i> Master Data Lokasi
@@ -305,7 +294,6 @@
                         <ul id="list-locations" class="space-y-2 max-h-60 overflow-y-auto pr-1"></ul>
                     </div>
                     
-                    <!-- Kategori -->
                     <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
                         <h4 class="font-bold mb-4 flex items-center text-blue-800">
                             <i data-lucide="tags" class="w-4 h-4 mr-2 text-blue-600"></i> Master Data Kategori
@@ -345,12 +333,12 @@
         // 2. STATE GLOBAL (Variabel Penampung)
         // ==========================================
         window.reports = [];
-        window.searchQuery = ""; // Untuk fitur pencarian admin
+        window.searchQuery = ""; 
         window.locations = ['Masjid Utama', 'Asrama Putra', 'Asrama Putri', 'Ruang Kelas'];
         window.categories = ['Listrik', 'Air & Saluran', 'Mebel', 'Elektronik'];
-        window.waSettings = { number: '', groupUrl: '' };
+        // Modifikasi waSettings untuk memasukkan opsi target
+        window.waSettings = { number: '', groupUrl: '', target: 'admin' }; 
         
-        // Cek apakah data awal sudah termuat untuk mematikan loading screen
         let isInitialReportsLoaded = false;
         let isInitialSettingsLoaded = false;
 
@@ -384,7 +372,7 @@
                 setTimeout(() => {
                     errDiv.classList.add('opacity-0');
                     setTimeout(() => errDiv.classList.add('hidden'), 300);
-                }, 6000); // Tampil lebih lama
+                }, 6000);
             }
         }
 
@@ -422,7 +410,6 @@
             const targetTab = document.getElementById(`tab-${tab}`);
             if (targetTab) targetTab.classList.remove('hidden');
             
-            // Atur gaya tombol tab
             ['tickets', 'settings', 'reports'].forEach(t => {
                 const btn = document.getElementById(`tab-btn-${t}`);
                 if (btn) {
@@ -432,13 +419,11 @@
                 }
             });
 
-            // Tampilkan atau sembunyikan kotak pencarian
             const searchContainer = document.getElementById('search-container');
             if (searchContainer) {
                 searchContainer.style.display = tab === 'tickets' ? 'block' : 'none';
             }
 
-            // Auto-load report jika tab Laporan dibuka pertama kali
             if (tab === 'reports') {
                 const picker = document.getElementById('report-month-picker');
                 if (!picker.value) {
@@ -483,14 +468,13 @@
 
         window.filterTickets = function(query) {
             window.searchQuery = query.toLowerCase().trim();
-            window.renderTable(); // Render ulang tabel dengan filter
+            window.renderTable();
         }
 
         window.renderTable = function() {
             const tbody = document.getElementById('table-body');
             if (!tbody) return;
 
-            // Proses Filter Data
             const filteredReports = window.reports.filter(r => {
                 if (!window.searchQuery) return true;
                 return (r.id && r.id.toLowerCase().includes(window.searchQuery)) ||
@@ -499,7 +483,6 @@
                        (r.description && r.description.toLowerCase().includes(window.searchQuery));
             });
 
-            // Fungsi pembantu warna badge
             const getStatusBadge = (status) => {
                 if (status === 'Menunggu') return 'bg-red-100 text-red-700 border border-red-200';
                 if (status === 'Diproses') return 'bg-amber-100 text-amber-700 border border-amber-200';
@@ -551,7 +534,6 @@
                     </tr>`).join('');
             }
             
-            // Update Statistik Dashboard (dari data asli, bukan data terfilter)
             const elTotal = document.getElementById('stat-total');
             const elPending = document.getElementById('stat-pending');
             const elProgress = document.getElementById('stat-progress');
@@ -601,7 +583,6 @@
             }
         };
 
-        // Fungsi Admin Master Data
         window.addLocation = function() { 
             let v = document.getElementById('new-location').value.trim(); 
             if(v && !window.locations.includes(v)) {
@@ -635,11 +616,12 @@
         window.saveWASettings = function() { 
             window.waSettings.number = document.getElementById('wa-number').value.replace(/\D/g,''); 
             window.waSettings.groupUrl = document.getElementById('wa-group').value.trim(); 
+            // Menyimpan target notifikasi (Admin atau Grup)
+            window.waSettings.target = document.getElementById('wa-target').value;
             window.saveSettingsToDB(); 
             window.showNotification('Pengaturan WA Disimpan'); 
         };
 
-        // Utilitas untuk menyalin teks (dipakai oleh fitur notifikasi WhatsApp otomatis)
         window.copyTextToClipboard = function(text) {
             const textArea = document.createElement("textarea");
             textArea.value = text;
@@ -664,14 +646,12 @@
             
             document.getElementById('report-period-title').textContent = `Periode: ${monthNames[parseInt(month)-1]} ${year}`;
             
-            // Filter tiket berdasarkan bulan & tahun pembuatan (menggunakan timestamp)
             const filtered = window.reports.filter(r => {
                 if(!r.timestamp) return false;
                 const date = new Date(r.timestamp);
                 return date.getFullYear() == year && String(date.getMonth() + 1).padStart(2, '0') === month;
             });
             
-            // Update Ringkasan Laporan
             const total = filtered.length;
             const pending = filtered.filter(r => r.status === 'Menunggu').length;
             const progress = filtered.filter(r => r.status === 'Diproses').length;
@@ -686,7 +666,6 @@
             `;
             summaryDiv.classList.remove('hidden');
             
-            // Update Tabel Laporan
             const tbody = document.getElementById('report-table-body');
             const getStatusBadge = (status) => {
                 if (status === 'Menunggu') return 'text-red-700 bg-red-100 border border-red-200';
@@ -734,14 +713,15 @@
                     
                     const waNum = document.getElementById('wa-number');
                     const waGroup = document.getElementById('wa-group');
+                    const waTarget = document.getElementById('wa-target');
                     if (waNum) waNum.value = window.waSettings.number || '';
                     if (waGroup) waGroup.value = window.waSettings.groupUrl || '';
+                    if (waTarget) waTarget.value = window.waSettings.target || 'admin';
                     
                     window.updateLocationSelect();
                     window.updateCategorySelect();
                     window.renderSettingsList();
                 } else {
-                    // Inisialisasi awal jika database kosong
                     setDoc(settingsRef, {
                         locations: window.locations,
                         categories: window.categories,
@@ -754,7 +734,7 @@
             (error) => {
                 console.error("Firestore Permission Error:", error);
                 window.showError("Koneksi Database Gagal. Pastikan mode uji coba (Test Mode) Firestore aktif.");
-                isInitialSettingsLoaded = true; // Tetap matikan loader meski error
+                isInitialSettingsLoaded = true; 
                 checkHideLoader();
             }
         );
@@ -764,7 +744,7 @@
             (snapshot) => {
                 let loaded = [];
                 snapshot.forEach(doc => loaded.push(doc.data()));
-                loaded.sort((a, b) => b.timestamp - a.timestamp); // Urutan terbaru di atas
+                loaded.sort((a, b) => b.timestamp - a.timestamp); 
                 window.reports = loaded;
                 window.renderTable();
                 
@@ -785,7 +765,6 @@
             reportForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                // Ubah status tombol untuk cegah klik ganda (Anti-Spam)
                 const submitBtn = document.getElementById('btn-submit-report');
                 const originalBtnContent = submitBtn.innerHTML;
                 submitBtn.disabled = true;
@@ -806,30 +785,39 @@
                 };
                 
                 try {
-                    // Simpan ke Firestore
                     await setDoc(doc(db, "reports", id), newRep);
                     
                     this.reset();
-                    document.getElementById('form-severity').value = 'Sedang'; // Reset spesifik select
+                    document.getElementById('form-severity').value = 'Sedang'; 
                     window.showNotification('Laporan Terkirim!');
 
-                    // Logika WhatsApp Otomatis
-                    if (window.waSettings.number || window.waSettings.groupUrl) {
-                        const text = `*TICKET PEMELIHARAAN BARU*\n\n🆔 *ID Tiket:* ${newRep.id}\n👤 *Pelapor:* ${newRep.reporter}\n📍 *Lokasi:* ${newRep.location}\n🏷️ *Kategori:* ${newRep.category}\n🚨 *Prioritas:* ${newRep.severity}\n💬 *Deskripsi:*\n${newRep.description}`;
-                        
+                    // Logika WhatsApp Otomatis dengan Opsi Tujuan
+                    const target = window.waSettings.target || 'admin';
+                    const text = `*[MAINTENANCE YAPIKA]*\n\n🆔 *ID Tiket:* ${newRep.id}\n👤 *Pelapor:* ${newRep.reporter}\n📍 *Lokasi:* ${newRep.location}\n🏷️ *Kategori:* ${newRep.category}\n🚨 *Prioritas:* ${newRep.severity}\n💬 *Deskripsi:*\n${newRep.description}`;
+
+                    if (target === 'admin' && window.waSettings.number) {
+                        // Kirim langsung ke Chat Pribadi Admin
+                        window.open(`https://wa.me/${window.waSettings.number}?text=${encodeURIComponent(text)}`, '_blank');
+                    } else if (target === 'group' && window.waSettings.groupUrl) {
+                        // Kirim ke Grup
+                        window.copyTextToClipboard(text);
+                        alert("Detail laporan telah disalin ke clipboard!\nSistem akan membuka Grup WA, silakan PASTE (tempel) pesannya di sana.");
+                        window.open(window.waSettings.groupUrl, '_blank');
+                    } else if (window.waSettings.number || window.waSettings.groupUrl) {
+                        // Jika pilihan target tidak ada tapi salah satu kotak terisi (Fallback pencegahan error)
                         if (window.waSettings.number) {
                             window.open(`https://wa.me/${window.waSettings.number}?text=${encodeURIComponent(text)}`, '_blank');
                         } else {
                             window.copyTextToClipboard(text);
-                            alert("Detail laporan telah disalin!\nBrowser WhatsApp akan terbuka, silakan PASTE (tempel) di chat grup.");
+                            alert("Detail laporan telah disalin ke clipboard!\nSistem akan membuka Grup WA, silakan PASTE (tempel) pesannya di sana.");
                             window.open(window.waSettings.groupUrl, '_blank');
                         }
                     }
+
                 } catch (error) {
                     console.error(error);
                     window.showError("Gagal mengirim laporan. Cek koneksi internet atau Database.");
                 } finally {
-                    // Kembalikan tombol ke kondisi semula
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnContent;
                     lucide.createIcons();
@@ -857,9 +845,8 @@
         const yearEl = document.getElementById('current-year');
         if (yearEl) yearEl.textContent = new Date().getFullYear();
         
-        window.changeView('portal'); // Tampilan default
+        window.changeView('portal'); 
         
-        // Timeout darurat jika Firebase ngehang, paksa tutup loader setelah 8 detik
         setTimeout(() => { checkHideLoader(); }, 8000);
 
     </script>
