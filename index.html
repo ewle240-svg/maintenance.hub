@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAINTENANCE.HUB YAPIKA</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom scrollbar untuk tabel */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-100 flex flex-col min-h-screen font-sans text-slate-800">
+
+    <!-- GLOBAL LOADER -->
+    <div id="global-loader" class="fixed inset-0 bg-slate-50 z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
+        <i data-lucide="loader-2" class="w-12 h-12 text-teal-600 animate-spin mb-4"></i>
+        <p class="text-teal-800 font-bold tracking-wide animate-pulse">Menghubungkan ke Server...</p>
+        <p class="text-xs text-slate-500 mt-2">Memuat data fasilitas YAPIKA</p>
+    </div>
+
+    <!-- HEADER -->
+    <header class="bg-teal-700 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3 cursor-pointer transition-transform hover:scale-105" onclick="changeView('portal')">
+                <div class="bg-white p-2 rounded-full text-teal-700 flex items-center justify-center shadow-inner">
+                    <i data-lucide="wrench" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold tracking-tight">MAINTENANCE.HUB</h1>
+                    <p class="text-teal-200 text-[10px] sm:text-xs font-medium">Pondok Pesantren YAPIKA</p>
+                </div>
+            </div>
+            <nav id="header-nav"></nav>
+        </div>
+    </header>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast-notification" class="fixed top-24 right-4 z-50 hidden transition-opacity duration-300 opacity-0 pointer-events-none">
+        <div class="bg-teal-800 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 transform transition-transform hover:scale-105">
+            <i data-lucide="check-circle" class="w-5 h-5 text-teal-400"></i>
+            <span id="toast-message" class="font-medium text-sm">Notifikasi</span>
+        </div>
+    </div>
+
+    <!-- ERROR NOTIFICATION -->
+    <div id="error-notification" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 hidden transition-all duration-300 opacity-0 pointer-events-none w-[90%] max-w-md">
+        <div class="bg-red-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-start space-x-3">
+            <i data-lucide="alert-triangle" class="w-5 h-5 text-red-200 shrink-0 mt-0.5"></i>
+            <span id="error-message" class="font-medium text-sm">Terjadi kesalahan.</span>
+        </div>
+    </div>
+
+    <!-- VIEW: PORTAL (FORM PELAPORAN) -->
+    <main id="view-portal" class="max-w-3xl mx-auto px-4 py-8 sm:py-12 w-full transition-all duration-300">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-extrabold text-slate-800 mb-3 tracking-tight">Lapor Kerusakan</h2>
+            <p class="text-slate-600 text-sm sm:text-base">Bantu kami menjaga kenyamanan lingkungan Pondok Pesantren YAPIKA.</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100 transition-all hover:shadow-2xl">
+            <div class="bg-slate-50 border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center">
+                    <i data-lucide="file-plus-2" class="w-5 h-5 text-teal-600 mr-2"></i>
+                    <h3 class="text-lg font-bold text-slate-800">Form Tiket Baru</h3>
+                </div>
+                <span class="text-xs font-medium bg-teal-100 text-teal-700 px-2 py-1 rounded-full">Respon Cepat</span>
+            </div>
+            <form id="report-form" class="p-6 sm:p-8 space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-slate-700">Nama Pelapor / Divisi</label>
+                        <input type="text" id="form-reporter" placeholder="Contoh: Ust. Budi / Kelas 10A" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500 outline-none transition-all bg-slate-50 focus:bg-white" required>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-slate-700">Tingkat Prioritas</label>
+                        <select id="form-severity" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500 outline-none transition-all bg-slate-50 focus:bg-white cursor-pointer">
+                            <option value="Rendah">Rendah (Dapat ditunda)</option>
+                            <option value="Sedang" selected>Sedang (Perlu penanganan)</option>
+                            <option value="Tinggi">Tinggi (Darurat/Segera)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-slate-700">Lokasi Kerusakan</label>
+                        <select id="form-location" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500 outline-none transition-all bg-slate-50 focus:bg-white cursor-pointer"></select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-slate-700">Kategori Perbaikan</label>
+                        <select id="form-category" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500 outline-none transition-all bg-slate-50 focus:bg-white cursor-pointer"></select>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-slate-700">Deskripsi Detail Kerusakan</label>
+                    <textarea id="form-description" rows="4" placeholder="Jelaskan secara spesifik posisi dan gejala kerusakan agar teknisi mudah memahami..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500 outline-none transition-all resize-none bg-slate-50 focus:bg-white" required></textarea>
+                </div>
+
+                <button id="btn-submit-report" type="submit" class="w-full py-4 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-lg shadow-teal-200 transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none flex justify-center items-center">
+                    <i data-lucide="send" class="w-4 h-4 mr-2"></i>
+                    <span>KIRIM LAPORAN KERUSAKAN</span>
+                </button>
+            </form>
+        </div>
+        
+        <footer class="mt-8 py-6 text-center text-slate-500 text-xs sm:text-sm">
+            &copy; <span id="current-year"></span> Sistem Pemeliharaan YAPIKA.<br class="sm:hidden"> Ditenagai oleh Layanan Cloud.
+        </footer>
+    </main>
+
+    <!-- VIEW: LOGIN -->
+    <main id="view-login" class="flex-1 flex flex-col items-center justify-center p-4 hidden w-full">
+        <div class="bg-white p-8 sm:p-10 rounded-3xl shadow-2xl w-full max-w-md text-center border border-slate-100 transform transition-all">
+            <div class="inline-flex bg-teal-50 p-4 rounded-full mb-6">
+                <i data-lucide="shield-check" class="w-12 h-12 text-teal-600"></i>
+            </div>
+            <h2 class="text-2xl font-extrabold mb-2 text-slate-800">Otorisasi Admin</h2>
+            <p class="text-slate-500 text-sm mb-8">Area terbatas. Masukkan PIN keamanan untuk mengakses ruang kerja manajemen.</p>
+            
+            <form id="login-form" class="space-y-5">
+                <div>
+                    <input type="password" id="login-pin" placeholder="PIN Akses" class="w-full text-center tracking-widest text-2xl py-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500 outline-none bg-slate-50 transition-all" autofocus>
+                    <p id="login-error" class="text-red-500 text-xs mt-2 hidden font-medium">Autentikasi gagal. PIN tidak valid.</p>
+                </div>
+                <button type="submit" class="w-full py-4 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl transition-colors shadow-lg">MASUK WORKSPACE</button>
+            </form>
+            <button onclick="changeView('portal')" class="mt-6 text-slate-400 hover:text-teal-600 text-sm font-medium transition-colors flex items-center justify-center mx-auto">
+                <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i> Kembali ke Portal
+            </button>
+        </div>
+    </main>
+
+    <!-- VIEW: ADMIN -->
+    <main id="view-admin" class="max-w-7xl mx-auto px-4 py-8 hidden w-full animate-fadeIn">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Workspace Admin</h2>
+                <p class="text-slate-500 text-sm mt-1">Kelola dan pantau seluruh status pemeliharaan fasilitas.</p>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full md:w-auto text-center">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-center">
+                    <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Tiket</p>
+                    <p id="stat-total" class="text-xl font-black text-slate-700">0</p>
+                </div>
+                <div class="bg-red-50 p-4 rounded-xl shadow-sm border border-red-100 flex flex-col justify-center">
+                    <p class="text-[10px] uppercase font-bold text-red-400 tracking-wider">Menunggu</p>
+                    <p id="stat-pending" class="text-xl font-black text-red-600">0</p>
+                </div>
+                <div class="bg-amber-50 p-4 rounded-xl shadow-sm border border-amber-100 flex flex-col justify-center">
+                    <p class="text-[10px] uppercase font-bold text-amber-500 tracking-wider">Diproses</p>
+                    <p id="stat-progress" class="text-xl font-black text-amber-600">0</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-xl shadow-sm border border-green-100 flex flex-col justify-center">
+                    <p class="text-[10px] uppercase font-bold text-green-500 tracking-wider">Selesai</p>
+                    <p id="stat-completed" class="text-xl font-black text-green-600">0</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="border-b border-slate-200 flex flex-col sm:flex-row bg-slate-50">
+                <div class="flex">
+                    <button onclick="changeAdminTab('tickets')" id="tab-btn-tickets" class="px-6 py-4 text-sm font-bold border-b-2 border-teal-600 text-teal-700 bg-white flex items-center transition-colors">
+                        <i data-lucide="list-filter" class="w-4 h-4 mr-2"></i> Daftar Tiket
+                    </button>
+                    <button onclick="changeAdminTab('settings')" id="tab-btn-settings" class="px-6 py-4 text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-100 flex items-center transition-colors">
+                        <i data-lucide="settings" class="w-4 h-4 mr-2"></i> Pengaturan
+                    </button>
+                </div>
+                <!-- Search Bar (Only visible in Tickets tab) -->
+                <div id="search-container" class="p-2 sm:p-3 sm:ml-auto w-full sm:w-auto">
+                    <div class="relative">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                        <input type="text" id="search-ticket" placeholder="Cari ID, pelapor, lokasi..." oninput="window.filterTickets(this.value)" class="pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent w-full sm:w-64 bg-white">
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: TICKETS -->
+            <div id="tab-tickets" class="overflow-x-auto">
+                <table class="w-full text-left min-w-[900px]">
+                    <thead class="bg-slate-50 text-[11px] uppercase text-slate-500 border-b tracking-wider">
+                        <tr>
+                            <th class="p-4 font-semibold w-[15%]">ID & Waktu</th>
+                            <th class="p-4 font-semibold w-[20%]">Pelapor & Lokasi</th>
+                            <th class="p-4 font-semibold w-[35%]">Deskripsi Kerusakan</th>
+                            <th class="p-4 font-semibold text-center w-[10%]">Status</th>
+                            <th class="p-4 font-semibold text-right w-[20%]">Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body" class="divide-y divide-slate-100">
+                        <!-- Konten tabel dimuat via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- TAB: SETTINGS -->
+            <div id="tab-settings" class="p-6 sm:p-8 hidden space-y-8 bg-white">
+                
+                <!-- Info Peringatan -->
+                <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start">
+                    <i data-lucide="info" class="w-5 h-5 text-blue-500 mt-0.5 mr-3 shrink-0"></i>
+                    <div>
+                        <h5 class="text-sm font-bold text-blue-800">Sinkronisasi Cloud Aktif</h5>
+                        <p class="text-xs text-blue-600 mt-1">Semua perubahan pada Master Data dan Integrasi WhatsApp di bawah ini akan tersimpan otomatis ke database dan berlaku untuk semua pengguna secara instan.</p>
+                    </div>
+                </div>
+
+                <!-- WA Settings -->
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                    <h4 class="font-bold mb-4 flex items-center text-green-700">
+                        <div class="bg-green-100 p-1.5 rounded-lg mr-2"><i data-lucide="message-circle" class="w-4 h-4 text-green-600"></i></div>
+                        Integrasi Notifikasi WhatsApp
+                    </h4>
+                    <p class="text-xs text-slate-500 mb-4">Isi salah satu (atau keduanya). Jika nomor Admin diisi, laporan akan diteruskan ke Chat Pribadi. Jika Grup diisi, Admin akan diarahkan untuk Paste teks laporan di grup.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">No. WA Admin (Gunakan 62)</label>
+                            <input type="text" id="wa-number" placeholder="Contoh: 628123456789" class="w-full p-3 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Link Undangan Grup WA</label>
+                            <input type="text" id="wa-group" placeholder="https://chat.whatsapp.com/..." class="w-full p-3 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <button onclick="saveWASettings()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-lg text-sm font-bold transition-colors shadow-sm flex items-center">
+                            <i data-lucide="save" class="w-4 h-4 mr-2"></i> Simpan Pengaturan WA
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Lokasi -->
+                    <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                        <h4 class="font-bold mb-4 flex items-center text-teal-800">
+                            <i data-lucide="map-pin" class="w-4 h-4 mr-2 text-teal-600"></i> Master Data Lokasi
+                        </h4>
+                        <div class="flex mb-4 shadow-sm rounded-lg overflow-hidden border border-slate-300">
+                            <input type="text" id="new-location" placeholder="Ketik lokasi baru..." class="flex-1 p-3 text-sm focus:outline-none">
+                            <button onclick="addLocation()" class="bg-teal-600 hover:bg-teal-700 text-white px-5 text-sm font-bold transition-colors">Tambah</button>
+                        </div>
+                        <ul id="list-locations" class="space-y-2 max-h-60 overflow-y-auto pr-1"></ul>
+                    </div>
+                    
+                    <!-- Kategori -->
+                    <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                        <h4 class="font-bold mb-4 flex items-center text-blue-800">
+                            <i data-lucide="tags" class="w-4 h-4 mr-2 text-blue-600"></i> Master Data Kategori
+                        </h4>
+                        <div class="flex mb-4 shadow-sm rounded-lg overflow-hidden border border-slate-300">
+                            <input type="text" id="new-category" placeholder="Ketik kategori baru..." class="flex-1 p-3 text-sm focus:outline-none">
+                            <button onclick="addCategory()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 text-sm font-bold transition-colors">Tambah</button>
+                        </div>
+                        <ul id="list-categories" class="space-y-2 max-h-60 overflow-y-auto pr-1"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ==========================================
+        // 1. KONFIGURASI FIREBASE
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBGaS7Z4cpBrlA5oRHqheDZwKNa8PR--_0",
+            authDomain: "maintenance-yapika-e610a.firebaseapp.com",
+            projectId: "maintenance-yapika-e610a",
+            storageBucket: "maintenance-yapika-e610a.firebasestorage.app",
+            messagingSenderId: "1056740977594",
+            appId: "1:1056740977594:web:d660ceed416484081ccb83",
+            measurementId: "G-792L2HS0KP"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ==========================================
+        // 2. STATE GLOBAL (Variabel Penampung)
+        // ==========================================
+        window.reports = [];
+        window.searchQuery = ""; // Untuk fitur pencarian admin
+        window.locations = ['Masjid Utama', 'Asrama Putra', 'Asrama Putri', 'Ruang Kelas'];
+        window.categories = ['Listrik', 'Air & Saluran', 'Mebel', 'Elektronik'];
+        window.waSettings = { number: '', groupUrl: '' };
+        
+        // Cek apakah data awal sudah termuat untuk mematikan loading screen
+        let isInitialReportsLoaded = false;
+        let isInitialSettingsLoaded = false;
+
+        // ==========================================
+        // 3. FUNGSI-FUNGSI BANTUAN & UI
+        // ==========================================
+        window.escapeHTML = function(str) {
+            if(!str) return '';
+            return str.replace(/[&<>'"]/g, tag => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[tag]));
+        }
+
+        window.showNotification = function(msg) {
+            const toast = document.getElementById('toast-notification');
+            if (toast) {
+                document.getElementById('toast-message').textContent = msg;
+                toast.classList.remove('hidden');
+                setTimeout(() => toast.classList.remove('opacity-0'), 10);
+                setTimeout(() => {
+                    toast.classList.add('opacity-0');
+                    setTimeout(() => toast.classList.add('hidden'), 300);
+                }, 3000);
+            }
+        }
+
+        window.showError = function(msg) {
+            const errDiv = document.getElementById('error-notification');
+            if (errDiv) {
+                document.getElementById('error-message').textContent = msg;
+                errDiv.classList.remove('hidden');
+                setTimeout(() => errDiv.classList.remove('opacity-0'), 10);
+                setTimeout(() => {
+                    errDiv.classList.add('opacity-0');
+                    setTimeout(() => errDiv.classList.add('hidden'), 300);
+                }, 6000); // Tampil lebih lama
+            }
+        }
+
+        function checkHideLoader() {
+            if (isInitialReportsLoaded && isInitialSettingsLoaded) {
+                const loader = document.getElementById('global-loader');
+                if (loader) {
+                    loader.classList.add('opacity-0');
+                    setTimeout(() => loader.classList.add('hidden'), 500);
+                }
+            }
+        }
+
+        // ==========================================
+        // 4. FUNGSI RENDER TAMPILAN (DOM)
+        // ==========================================
+        window.changeView = function(view) {
+            ['portal', 'login', 'admin'].forEach(v => document.getElementById(`view-${v}`).classList.add('hidden'));
+            document.getElementById(`view-${view}`).classList.remove('hidden');
+            
+            const nav = document.getElementById('header-nav');
+            if (nav) {
+                nav.innerHTML = view === 'admin' 
+                    ? `<button onclick="changeView('portal')" class="bg-teal-800 hover:bg-teal-900 transition-colors p-2 sm:px-4 rounded-lg flex items-center text-xs sm:text-sm font-medium border border-teal-600 shadow-sm"><i data-lucide="log-out" class="w-4 h-4 sm:mr-2"></i> <span class="hidden sm:inline">Keluar</span></button>`
+                    : `<button onclick="changeView('login')" class="bg-teal-600 hover:bg-teal-800 transition-colors p-2 sm:px-4 rounded-lg flex items-center text-xs sm:text-sm font-medium border border-teal-500 shadow-sm"><i data-lucide="shield-check" class="w-4 h-4 sm:mr-2"></i> <span class="hidden sm:inline">Area Admin</span></button>`;
+                lucide.createIcons();
+            }
+        }
+
+        window.changeAdminTab = function(tab) {
+            ['tickets', 'settings'].forEach(t => document.getElementById(`tab-${t}`).classList.add('hidden'));
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+            
+            // Atur gaya tombol tab
+            document.getElementById('tab-btn-tickets').className = tab === 'tickets' 
+                ? 'px-6 py-4 text-sm font-bold border-b-2 border-teal-600 text-teal-700 bg-white flex items-center transition-colors' 
+                : 'px-6 py-4 text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-100 flex items-center transition-colors';
+            
+            document.getElementById('tab-btn-settings').className = tab === 'settings' 
+                ? 'px-6 py-4 text-sm font-bold border-b-2 border-teal-600 text-teal-700 bg-white flex items-center transition-colors' 
+                : 'px-6 py-4 text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-100 flex items-center transition-colors';
+
+            // Tampilkan atau sembunyikan kotak pencarian
+            const searchContainer = document.getElementById('search-container');
+            if (searchContainer) {
+                searchContainer.style.display = tab === 'tickets' ? 'block' : 'none';
+            }
+        }
+
+        window.updateLocationSelect = function() {
+            const el = document.getElementById('form-location');
+            if(el) el.innerHTML = window.locations.map(l => `<option value="${window.escapeHTML(l)}">${window.escapeHTML(l)}</option>`).join('');
+        }
+
+        window.updateCategorySelect = function() {
+            const el = document.getElementById('form-category');
+            if(el) el.innerHTML = window.categories.map(c => `<option value="${window.escapeHTML(c)}">${window.escapeHTML(c)}</option>`).join('');
+        }
+
+        window.renderSettingsList = function() {
+            const elLoc = document.getElementById('list-locations');
+            const elCat = document.getElementById('list-categories');
+            if(elLoc) {
+                elLoc.innerHTML = window.locations.map((l, i) => `
+                    <li class="flex justify-between items-center bg-white px-4 py-2.5 rounded-lg border border-slate-100 shadow-sm text-sm text-slate-700 group transition-all hover:border-teal-200">
+                        <span>${window.escapeHTML(l)}</span>
+                        <button onclick="deleteLoc(${i})" class="text-slate-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-md transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </li>`).join('');
+            }
+            if(elCat) {
+                elCat.innerHTML = window.categories.map((c, i) => `
+                    <li class="flex justify-between items-center bg-white px-4 py-2.5 rounded-lg border border-slate-100 shadow-sm text-sm text-slate-700 group transition-all hover:border-blue-200">
+                        <span>${window.escapeHTML(c)}</span>
+                        <button onclick="deleteCat(${i})" class="text-slate-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-md transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </li>`).join('');
+            }
+            lucide.createIcons();
+        }
+
+        window.filterTickets = function(query) {
+            window.searchQuery = query.toLowerCase().trim();
+            window.renderTable(); // Render ulang tabel dengan filter
+        }
+
+        window.renderTable = function() {
+            const tbody = document.getElementById('table-body');
+            if (!tbody) return;
+
+            // Proses Filter Data
+            const filteredReports = window.reports.filter(r => {
+                if (!window.searchQuery) return true;
+                return (r.id && r.id.toLowerCase().includes(window.searchQuery)) ||
+                       (r.reporter && r.reporter.toLowerCase().includes(window.searchQuery)) ||
+                       (r.location && r.location.toLowerCase().includes(window.searchQuery)) ||
+                       (r.description && r.description.toLowerCase().includes(window.searchQuery));
+            });
+
+            // Fungsi pembantu warna badge
+            const getStatusBadge = (status) => {
+                if (status === 'Menunggu') return 'bg-red-100 text-red-700 border border-red-200';
+                if (status === 'Diproses') return 'bg-amber-100 text-amber-700 border border-amber-200';
+                return 'bg-green-100 text-green-700 border border-green-200';
+            };
+
+            const getSeverityIcon = (sev) => {
+                if (sev === 'Tinggi') return `<i data-lucide="alert-triangle" class="w-3 h-3 text-red-500 inline mr-1"></i><span class="text-red-600 font-bold">Tinggi</span>`;
+                if (sev === 'Sedang') return `<span class="text-amber-500 font-semibold">Sedang</span>`;
+                return `<span class="text-blue-500">Rendah</span>`;
+            };
+
+            if (filteredReports.length === 0) {
+                tbody.innerHTML = `
+                    <tr><td colspan="5" class="p-12 text-center text-slate-400">
+                        <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 text-slate-300"></i>
+                        <p class="text-sm font-medium">Tidak ada laporan yang ditemukan.</p>
+                    </td></tr>`;
+            } else {
+                tbody.innerHTML = filteredReports.map(r => `
+                    <tr class="transition-colors text-sm ${r.severity === 'Tinggi' && r.status === 'Menunggu' ? 'bg-red-50/40 hover:bg-red-50' : 'hover:bg-slate-50'}">
+                        <td class="p-4 align-top">
+                            <div class="font-bold text-slate-800">${r.id}</div>
+                            <div class="text-[10px] text-slate-500 mt-1">${r.date}</div>
+                        </td>
+                        <td class="p-4 align-top">
+                            <div class="font-semibold text-slate-700">${window.escapeHTML(r.reporter)}</div>
+                            <div class="text-xs text-teal-700 mt-1 font-medium bg-teal-50 inline-block px-2 py-0.5 rounded">${window.escapeHTML(r.location)}</div>
+                        </td>
+                        <td class="p-4 align-top">
+                            <div class="text-xs mb-1">${getSeverityIcon(r.severity)} &bull; <span class="text-slate-500">${window.escapeHTML(r.category)}</span></div>
+                            <p class="text-slate-600 text-xs leading-relaxed line-clamp-2" title="${window.escapeHTML(r.description)}">${window.escapeHTML(r.description)}</p>
+                        </td>
+                        <td class="p-4 align-top text-center">
+                            <span class="px-3 py-1 rounded-full text-[10px] font-bold shadow-sm ${getStatusBadge(r.status)}">${r.status}</span>
+                        </td>
+                        <td class="p-4 align-top">
+                            <div class="flex flex-col sm:flex-row justify-end gap-2">
+                                <select onchange="updateStatus('${r.id}', this.value)" class="text-xs border border-slate-300 rounded-lg p-1.5 focus:ring-teal-500 focus:border-teal-500 cursor-pointer w-full sm:w-auto bg-white font-medium text-slate-700">
+                                    <option value="Menunggu" ${r.status==='Menunggu'?'selected':''}>Menunggu</option>
+                                    <option value="Diproses" ${r.status==='Diproses'?'selected':''}>Diproses</option>
+                                    <option value="Selesai" ${r.status==='Selesai'?'selected':''}>Selesai</option>
+                                </select>
+                                <div class="flex gap-1 justify-end">
+                                    <button onclick="copyReportDetails('${r.id}')" class="p-1.5 text-blue-600 hover:bg-blue-100 bg-blue-50 border border-blue-100 rounded-lg transition-colors" title="Salin Detail Laporan"><i data-lucide="copy" class="w-4 h-4"></i></button>
+                                    <button onclick="deleteReport('${r.id}')" class="p-1.5 text-red-500 hover:bg-red-100 bg-red-50 border border-red-100 rounded-lg transition-colors" title="Hapus Laporan Permanen"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>`).join('');
+            }
+            
+            // Update Statistik Dashboard (dari data asli, bukan data terfilter)
+            const elTotal = document.getElementById('stat-total');
+            const elPending = document.getElementById('stat-pending');
+            const elProgress = document.getElementById('stat-progress');
+            const elCompleted = document.getElementById('stat-completed');
+
+            if(elTotal) elTotal.textContent = window.reports.length;
+            if(elPending) elPending.textContent = window.reports.filter(r => r.status === 'Menunggu').length;
+            if(elProgress) elProgress.textContent = window.reports.filter(r => r.status === 'Diproses').length;
+            if(elCompleted) elCompleted.textContent = window.reports.filter(r => r.status === 'Selesai').length;
+            
+            lucide.createIcons();
+        }
+
+        // ==========================================
+        // 5. OPERASI DATABASE FIREBASE (CRUD)
+        // ==========================================
+        window.saveSettingsToDB = async function() {
+            try {
+                await setDoc(doc(db, "settings", "general"), {
+                    locations: window.locations,
+                    categories: window.categories,
+                    waSettings: window.waSettings
+                });
+            } catch (error) {
+                console.error("Gagal simpan setting:", error);
+                window.showError("Gagal menyimpan ke database. Pastikan Firebase Firestore telah diaktifkan.");
+            }
+        };
+
+        window.updateStatus = async function(id, s) {
+            try {
+                await updateDoc(doc(db, "reports", id), { status: s });
+                window.showNotification('Status berhasil diperbarui');
+            } catch (error) {
+                window.showError("Gagal memperbarui status. Periksa koneksi.");
+            }
+        };
+
+        window.deleteReport = async function(id) {
+            if(confirm('Tindakan ini permanen. Yakin ingin menghapus laporan ini?')) {
+                try {
+                    await deleteDoc(doc(db, "reports", id));
+                    window.showNotification('Laporan telah dihapus');
+                } catch (error) {
+                    window.showError("Gagal menghapus laporan.");
+                }
+            }
+        };
+
+        // Fungsi Admin Master Data
+        window.addLocation = function() { 
+            let v = document.getElementById('new-location').value.trim(); 
+            if(v && !window.locations.includes(v)) {
+                window.locations.push(v); 
+                document.getElementById('new-location').value=''; 
+                window.saveSettingsToDB(); 
+                window.showNotification('Lokasi Ditambahkan');
+            } 
+        };
+        window.deleteLoc = function(i) { 
+            if(confirm('Hapus lokasi ini dari daftar?')) {
+                window.locations.splice(i,1); window.saveSettingsToDB(); 
+            }
+        };
+        
+        window.addCategory = function() { 
+            let v = document.getElementById('new-category').value.trim(); 
+            if(v && !window.categories.includes(v)) {
+                window.categories.push(v); 
+                document.getElementById('new-category').value=''; 
+                window.saveSettingsToDB(); 
+                window.showNotification('Kategori Ditambahkan');
+            } 
+        };
+        window.deleteCat = function(i) { 
+            if(confirm('Hapus kategori ini dari daftar?')) {
+                window.categories.splice(i,1); window.saveSettingsToDB(); 
+            }
+        };
+        
+        window.saveWASettings = function() { 
+            window.waSettings.number = document.getElementById('wa-number').value.replace(/\D/g,''); 
+            window.waSettings.groupUrl = document.getElementById('wa-group').value.trim(); 
+            window.saveSettingsToDB(); 
+            window.showNotification('Pengaturan WA Disimpan'); 
+        };
+
+        // Fitur Copy/Salin Teks
+        window.copyReportDetails = function(id) {
+            const r = window.reports.find(rep => rep.id === id);
+            if (!r) return;
+            const text = `*[MAINTENANCE YAPIKA]*\n\n🆔 *ID Tiket:* ${r.id}\n🗓️ *Tanggal:* ${r.date}\n👤 *Pelapor:* ${r.reporter}\n📍 *Lokasi:* ${r.location}\n🏷️ *Kategori:* ${r.category}\n🚨 *Prioritas:* ${r.severity}\n💬 *Deskripsi:*\n${r.description}\n\n📌 *Status:* ${r.status}`;
+            window.copyTextToClipboard(text);
+            window.showNotification('Detail tiket berhasil disalin!');
+        }
+
+        window.copyTextToClipboard = function(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+        }
+
+        // ==========================================
+        // 6. LISTENERS FIREBASE (Sinkronisasi Real-time)
+        // ==========================================
+        const settingsRef = doc(db, "settings", "general");
+        onSnapshot(settingsRef, 
+            (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    window.locations = data.locations || window.locations;
+                    window.categories = data.categories || window.categories;
+                    window.waSettings = data.waSettings || window.waSettings;
+                    
+                    const waNum = document.getElementById('wa-number');
+                    const waGroup = document.getElementById('wa-group');
+                    if (waNum) waNum.value = window.waSettings.number || '';
+                    if (waGroup) waGroup.value = window.waSettings.groupUrl || '';
+                    
+                    window.updateLocationSelect();
+                    window.updateCategorySelect();
+                    window.renderSettingsList();
+                } else {
+                    // Inisialisasi awal jika database kosong
+                    setDoc(settingsRef, {
+                        locations: window.locations,
+                        categories: window.categories,
+                        waSettings: window.waSettings
+                    }).catch(e => console.error("Gagal buat DB setting:", e));
+                }
+                isInitialSettingsLoaded = true;
+                checkHideLoader();
+            }, 
+            (error) => {
+                console.error("Firestore Permission Error:", error);
+                window.showError("Koneksi Database Gagal. Pastikan mode uji coba (Test Mode) Firestore aktif.");
+                isInitialSettingsLoaded = true; // Tetap matikan loader meski error
+                checkHideLoader();
+            }
+        );
+
+        const reportsRef = collection(db, "reports");
+        onSnapshot(reportsRef, 
+            (snapshot) => {
+                let loaded = [];
+                snapshot.forEach(doc => loaded.push(doc.data()));
+                loaded.sort((a, b) => b.timestamp - a.timestamp); // Urutan terbaru di atas
+                window.reports = loaded;
+                window.renderTable();
+                
+                isInitialReportsLoaded = true;
+                checkHideLoader();
+            },
+            (error) => {
+                isInitialReportsLoaded = true;
+                checkHideLoader();
+            }
+        );
+
+        // ==========================================
+        // 7. LISTENERS FORM HTML
+        // ==========================================
+        const reportForm = document.getElementById('report-form');
+        if (reportForm) {
+            reportForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Ubah status tombol untuk cegah klik ganda (Anti-Spam)
+                const submitBtn = document.getElementById('btn-submit-report');
+                const originalBtnContent = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 mr-2 animate-spin"></i><span>MENGIRIM...</span>';
+                lucide.createIcons();
+
+                const id = `REP-${Math.floor(Math.random()*9000)+1000}`;
+                const newRep = {
+                    id: id,
+                    reporter: document.getElementById('form-reporter').value.trim(),
+                    severity: document.getElementById('form-severity').value,
+                    location: document.getElementById('form-location').value,
+                    category: document.getElementById('form-category').value,
+                    description: document.getElementById('form-description').value.trim(),
+                    status: 'Menunggu',
+                    date: new Date().toLocaleString('id-ID'),
+                    timestamp: Date.now()
+                };
+                
+                try {
+                    // Simpan ke Firestore
+                    await setDoc(doc(db, "reports", id), newRep);
+                    
+                    this.reset();
+                    document.getElementById('form-severity').value = 'Sedang'; // Reset spesifik select
+                    window.showNotification('Laporan Terkirim!');
+
+                    // Logika WhatsApp Otomatis
+                    if (window.waSettings.number || window.waSettings.groupUrl) {
+                        const text = `*TICKET PEMELIHARAAN BARU*\n\n🆔 *ID Tiket:* ${newRep.id}\n👤 *Pelapor:* ${newRep.reporter}\n📍 *Lokasi:* ${newRep.location}\n🏷️ *Kategori:* ${newRep.category}\n🚨 *Prioritas:* ${newRep.severity}\n💬 *Deskripsi:*\n${newRep.description}`;
+                        
+                        if (window.waSettings.number) {
+                            window.open(`https://wa.me/${window.waSettings.number}?text=${encodeURIComponent(text)}`, '_blank');
+                        } else {
+                            window.copyTextToClipboard(text);
+                            alert("Detail laporan telah disalin!\nBrowser WhatsApp akan terbuka, silakan PASTE (tempel) di chat grup.");
+                            window.open(window.waSettings.groupUrl, '_blank');
+                        }
+                    }
+                } catch (error) {
+                    console.error(error);
+                    window.showError("Gagal mengirim laporan. Cek koneksi internet atau Database.");
+                } finally {
+                    // Kembalikan tombol ke kondisi semula
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnContent;
+                    lucide.createIcons();
+                }
+            });
+        }
+
+        const loginForm = document.getElementById('login-form');
+        if (loginForm) {
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (document.getElementById('login-pin').value === '123456') {
+                    window.changeView('admin');
+                    document.getElementById('login-pin').value = '';
+                    document.getElementById('login-error').classList.add('hidden');
+                } else {
+                    document.getElementById('login-error').classList.remove('hidden');
+                }
+            });
+        }
+
+        // ==========================================
+        // 8. INISIALISASI DOM AWAL
+        // ==========================================
+        const yearEl = document.getElementById('current-year');
+        if (yearEl) yearEl.textContent = new Date().getFullYear();
+        
+        window.changeView('portal'); // Tampilan default
+        
+        // Timeout darurat jika Firebase ngehang, paksa tutup loader setelah 8 detik
+        setTimeout(() => { checkHideLoader(); }, 8000);
+
+    </script>
+</body>
+</html>
